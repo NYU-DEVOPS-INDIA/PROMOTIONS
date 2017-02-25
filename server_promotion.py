@@ -39,13 +39,19 @@ promotions = [
         'id': 1,
         'name': "Buy one, get one free",
         'description': 'Buy an item having a cost of atleast 30$ to get one free.Cost of the higher price product will be taken into account',
-        'kind':'sales-promotion'
+        'kind':'sales-promotion1'
     },
     {
         'id': 2,
         'name': "Buy one, get two free",
         'description': 'Buy an item having a cost of atleast 50$ to get two free.Cost of the highest price product will be taken into account',
-        'kind':'sales-promotion'
+        'kind':'sales-promotion2'
+    },
+    {
+        'id': 3,
+        'name': "Buy one, get two free",
+        'description': 'Buy an item having a cost of atleast 50$ to get two free.Cost of the highest price product will be taken into account',
+        'kind':'sales-promotion1'
     }
 ]
 
@@ -63,13 +69,16 @@ def index():
 @app.route('/promotions', methods=['GET'])
 def list_promotions():
     results = []
-    kind = request.args.get('kind')
+    kind = str(request.args.get('kind'))
     if kind:
-        results = [promotion for promotion in promotions if promotion['kind'] == kind]
-    else:
+        for promotion in promotions:
+            if promotion['kind'] == kind[1:-1]:
+                results.append(promotion)		   	
+	else:
         results = promotions
-
-    return make_response(jsonify(results), HTTP_200_OK)
+    final = {}
+    final['res'] = results	
+    return make_response(jsonify(final), HTTP_200_OK)
 
 ######################################################################
 # RETRIEVE A PROMOTION
@@ -200,4 +209,4 @@ if __name__ == "__main__":
     # Pull options from environment
     debug = (os.getenv('DEBUG', 'False') == 'True')
     port = os.getenv('PORT', '5000')
-    app.run(host='127.0.0.1', port=int(port), debug=debug)
+    app.run(host='192.168.33.10', port=int(port), debug=debug)
