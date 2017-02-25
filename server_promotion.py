@@ -63,11 +63,14 @@ def index():
 @app.route('/promotions', methods=['GET'])
 def list_promotions():
     results = []
-    kind = request.args.get('kind')
-    if kind:
-        results = [promotion for promotion in promotions if promotion['kind'] == kind]
-    else:
-        results = promotions
+    #kind = request.args.get('kind')
+    #if kind:
+    #    results = [promotion for promotion in promotions if promotion['kind'] == kind]
+    #else:
+    #    results = promotions
+
+    if bool(promotions):
+        results = [promotion for promotion in enumerate(promotions)]
 
     return make_response(jsonify(results), HTTP_200_OK)
 
@@ -91,15 +94,17 @@ def get_promotions(id):
 ######################################################################
 @app.route('/promotions/<kind>', methods=['GET'])
 def get_promotions_kind(kind):
-    results=[]
+    #print kind
+    results = []
+    rc = HTTP_200_OK
     for type in promotions:
-     if kind == type['kind']:
-        results.append(type)
-        rc = HTTP_200_OK
+        if kind == type['kind']:
+            #print type
+            results.append(type)
     if results==[]:
-     results = { 'error' : 'promotion with kind: %s was not found' % str(kind) }
-     rc = HTTP_404_NOT_FOUND         
-    return make_response(jsonify(results), rc)
+        results = { 'error' : 'promotion with kind: %s was not found' % str(kind) }
+        rc = HTTP_404_NOT_FOUND  
+    return make_response(json.dumps(results), rc)
 
 
 
@@ -172,7 +177,7 @@ def is_valid(data):
     try:
         name = data['name']
         kind = data['kind']
-        description=data['description']
+        description = data['description']
         valid = True
     except KeyError as err:
         app.logger.warn('Missing parameter error: %s', err)
@@ -200,4 +205,4 @@ if __name__ == "__main__":
     # Pull options from environment
     debug = (os.getenv('DEBUG', 'False') == 'True')
     port = os.getenv('PORT', '5000')
-    app.run(host='127.0.0.1', port=int(port), debug=debug)
+    app.run(host='192.168.33.10', port=int(port), debug=debug)
