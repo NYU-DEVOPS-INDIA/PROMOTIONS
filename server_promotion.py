@@ -74,7 +74,7 @@ def list_promotions():
         for promotion in promotions:
             if promotion['kind'] == kind[1:-1]:
                 results.append(promotion)		   	
-	else:
+    else:
         results = promotions
     final = {}
     final['res'] = results	
