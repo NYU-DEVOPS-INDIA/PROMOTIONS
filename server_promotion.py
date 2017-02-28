@@ -36,19 +36,19 @@ lock = Lock()
 current_promotion_id = 2
 promotions = [
     {
-        'id': 1,
+        'id': 0,
         'name': "Buy one, get one free",
         'description': 'Buy an item having a cost of atleast 30$ to get one free.Cost of the higher price product will be taken into account',
         'kind':'sales-promotion1'
     },
     {
-        'id': 2,
+        'id': 1,
         'name': "Buy one, get two free",
         'description': 'Buy an item having a cost of atleast 50$ to get two free.Cost of the highest price product will be taken into account',
         'kind':'sales-promotion2'
     },
     {
-        'id': 3,
+        'id': 2,
         'name': "Buy one, get two free",
         'description': 'Buy an item having a cost of atleast 50$ to get two free.Cost of the highest price product will be taken into account',
         'kind':'sales-promotion1'
@@ -69,16 +69,11 @@ def index():
 @app.route('/promotions', methods=['GET'])
 def list_promotions():
     results = []
-    kind = str(request.args.get('kind'))
-    if kind:
-        for promotion in promotions:
-            if promotion['kind'] == kind[1:-1]:
-                results.append(promotion)		   	
-    else:
-        results = promotions
-    final = {}
-    final['res'] = results	
-    return make_response(jsonify(final), HTTP_200_OK)
+    #kind = request.args.get('kind')
+    if bool(promotions):
+        results = [promotion for promotion in enumerate(promotions)]
+        
+    return make_response(jsonify(results), HTTP_200_OK)
 
 ######################################################################
 # RETRIEVE A PROMOTION
@@ -101,14 +96,15 @@ def get_promotions(id):
 @app.route('/promotions/<kind>', methods=['GET'])
 def get_promotions_kind(kind):
     results=[]
-    for type in promotions:
-     if kind == type['kind']:
-        results.append(type)
-        rc = HTTP_200_OK
-    if results==[]:
+    for i,entry in enumerate(promotions):
+      if entry['kind']==kind:
+        print entry
+        results.append(entry)
+    rc = HTTP_200_OK
+    if results == []:
      results = { 'error' : 'promotion with kind: %s was not found' % str(kind) }
      rc = HTTP_404_NOT_FOUND         
-    return make_response(jsonify(results), rc)
+    return make_response(json.dumps(results), rc)
 
 
 
