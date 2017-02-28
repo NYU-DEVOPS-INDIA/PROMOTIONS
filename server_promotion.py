@@ -36,16 +36,22 @@ lock = Lock()
 current_promotion_id = 2
 promotions = [
     {
-        'id': 1,
+        'id': 0,
         'name': "Buy one, get one free",
         'description': 'Buy an item having a cost of atleast 30$ to get one free.Cost of the higher price product will be taken into account',
-        'kind':'sales-promotion'
+        'kind':'sales-promotion1'
+    },
+    {
+        'id': 1,
+        'name': "Buy one, get two free",
+        'description': 'Buy an item having a cost of atleast 50$ to get two free.Cost of the highest price product will be taken into account',
+        'kind':'sales-promotion2'
     },
     {
         'id': 2,
         'name': "Buy one, get two free",
         'description': 'Buy an item having a cost of atleast 50$ to get two free.Cost of the highest price product will be taken into account',
-        'kind':'sales-promotion'
+        'kind':'sales-promotion1'
     }
 ]
 
@@ -64,14 +70,9 @@ def index():
 def list_promotions():
     results = []
     #kind = request.args.get('kind')
-    #if kind:
-    #    results = [promotion for promotion in promotions if promotion['kind'] == kind]
-    #else:
-    #    results = promotions
-
     if bool(promotions):
         results = [promotion for promotion in enumerate(promotions)]
-
+        
     return make_response(jsonify(results), HTTP_200_OK)
 
 ######################################################################
@@ -94,16 +95,15 @@ def get_promotions(id):
 ######################################################################
 @app.route('/promotions/<kind>', methods=['GET'])
 def get_promotions_kind(kind):
-    #print kind
-    results = []
+    results=[]
+    for i,entry in enumerate(promotions):
+      if entry['kind']==kind:
+        print entry
+        results.append(entry)
     rc = HTTP_200_OK
-    for type in promotions:
-        if kind == type['kind']:
-            #print type
-            results.append(type)
-    if results==[]:
-        results = { 'error' : 'promotion with kind: %s was not found' % str(kind) }
-        rc = HTTP_404_NOT_FOUND  
+    if results == []:
+     results = { 'error' : 'promotion with kind: %s was not found' % str(kind) }
+     rc = HTTP_404_NOT_FOUND         
     return make_response(json.dumps(results), rc)
 
 
@@ -177,7 +177,7 @@ def is_valid(data):
     try:
         name = data['name']
         kind = data['kind']
-        description = data['description']
+        description=data['description']
         valid = True
     except KeyError as err:
         app.logger.warn('Missing parameter error: %s', err)
