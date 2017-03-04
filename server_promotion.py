@@ -34,7 +34,11 @@ lock = Lock()
 
 # dummy data for testing
 current_promotion_id = 2
-inactive_promotions=[]
+
+# has IDs of all inactive promotions
+inactive_promotions= list()
+
+# has information of all the promotions (both active and inactive)
 promotions = [
     {
         'id': 0,
@@ -65,8 +69,9 @@ promotions = [
 ######################################################################
 @app.route('/')
 def index():
-    promotion_url = request.base_url + "promotions"
-    return make_response(jsonify(name='Promotion REST API Service',version='1.0',url=promotion_url), HTTP_200_OK)
+    return render_template('index.html')
+    #promotion_url = request.base_url + "promotions"
+    #return make_response(jsonify(name='Promotion REST API Service',version='1.0',url=promotion_url), HTTP_200_OK)
 
 ######################################################################
 # LIST ALL PROMOTIONS
@@ -175,12 +180,20 @@ def update_promotions(id):
 ######################################################################
 # DELETE A PROMOTION
 ######################################################################
-#@app.route('/promotions/<int:id>', methods=['DELETE'])
-#def delete_promotions(id):
-#    index = [i for i, promotion in enumerate(promotions) if promotion['id'] == id]
-#    if len(index) > 0:
-#        del promotions[index[0]]
-#    return make_response('', HTTP_204_NO_CONTENT)
+@app.route('/promotions/delete/<int:id>', methods=['DELETE'])
+def delete_promotions(id):
+    global inactive_promotions
+    inactive_promotions_length = len(inactive_promotions)
+    inactive_promotions = [x for x in inactive_promotions if x != id]
+
+    global promotions
+    promotions_length = len(promotions)
+    promotions = [x for x in promotions if x['id'] != id]
+    
+    if (inactive_promotions_length == len(inactive_promotions) and promotions_length == len(promotions)):
+        return make_response('', HTTP_204_NO_CONTENT)
+
+    return make_response('', HTTP_200_OK)
 
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S
