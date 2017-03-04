@@ -11,11 +11,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+import datetime
 import os
 import logging
 from threading import Lock
-from flask import Flask, Response, jsonify, request, make_response, json, url_for
+from flask import Flask, Response, jsonify, request, make_response, json, url_for, render_template
 
 # Create Flask application
 app = Flask(__name__)
@@ -34,24 +34,33 @@ lock = Lock()
 
 # dummy data for testing
 current_promotion_id = 2
+
+# has IDs of all inactive promotions
+inactive_promotions= list()
+
+# has information of all the promotions (both active and inactive)
 promotions = [
     {
         'id': 0,
         'name': "Buy one, get one free",
         'description': 'Buy an item having a cost of atleast 30$ to get one free.Cost of the higher price product will be taken into account',
-        'kind':'sales-promotion1'
+        'kind':'sales-promotion1',
+        'status':'Active'
     },
     {
         'id': 1,
         'name': "Buy one, get two free",
         'description': 'Buy an item having a cost of atleast 50$ to get two free.Cost of the highest price product will be taken into account',
-        'kind':'sales-promotion2'
+        'kind':'sales-promotion2',
+        'status':'Active'
+
     },
     {
         'id': 2,
         'name': "Buy one, get two free",
         'description': 'Buy an item having a cost of atleast 50$ to get two free.Cost of the highest price product will be taken into account',
-        'kind':'sales-promotion1'
+        'kind':'sales-promotion1',
+        'status':'Active'
     }
 ]
 
@@ -60,8 +69,9 @@ promotions = [
 ######################################################################
 @app.route('/')
 def index():
-    promotion_url = request.base_url + "promotions"
-    return make_response(jsonify(name='Promotion REST API Service',version='1.0',url=promotion_url), HTTP_200_OK)
+    return render_template('index.html')
+    #promotion_url = request.base_url + "promotions"
+    #return make_response(jsonify(name='Promotion REST API Service',version='1.0',url=promotion_url), HTTP_200_OK)
 
 ######################################################################
 # LIST ALL PROMOTIONS
@@ -106,10 +116,24 @@ def get_promotions_kind(kind):
      rc = HTTP_404_NOT_FOUND         
     return make_response(json.dumps(results), rc)
 
+######################################################################
+# ACTION TO CANCEL THE PROMOTION
+######################################################################
+@app.route('/promotions/<int:id>/cancel', methods=['PUT'])
+def cancel_promotions(id):
+    index = [i for i, promotion in enumerate(promotions) if promotion['id'] == id]
+    if len(index) > 0:
+        promotions[index[0]]['status']='Inactive'
+        if promotions[index[0]]['id'] not in inactive_promotions:
+          inactive_promotions.append(promotions[index[0]]['id'])
+        print inactive_promotions
+        rc = HTTP_200_OK
+        message = {'Success' : 'Cancelled the Promotion '+ promotions[index[0]]['name'] + ' with id ' + str(id)}
+    else:
+        message = { 'error' : 'promotion with id: %s was not found' % str(id) }
+        rc = HTTP_404_NOT_FOUND
 
-
-
-
+    return make_response(jsonify(message), rc)
 
 ######################################################################
 # ADD A NEW PROMOTION
@@ -156,12 +180,20 @@ def update_promotions(id):
 ######################################################################
 # DELETE A PROMOTION
 ######################################################################
-#@app.route('/promotions/<int:id>', methods=['DELETE'])
-#def delete_promotions(id):
-#    index = [i for i, promotion in enumerate(promotions) if promotion['id'] == id]
-#    if len(index) > 0:
-#        del promotions[index[0]]
-#    return make_response('', HTTP_204_NO_CONTENT)
+@app.route('/promotions/delete/<int:id>', methods=['DELETE'])
+def delete_promotions(id):
+    global inactive_promotions
+    inactive_promotions_length = len(inactive_promotions)
+    inactive_promotions = [x for x in inactive_promotions if x != id]
+
+    global promotions
+    promotions_length = len(promotions)
+    promotions = [x for x in promotions if x['id'] != id]
+    
+    if (inactive_promotions_length == len(inactive_promotions) and promotions_length == len(promotions)):
+        return make_response('', HTTP_204_NO_CONTENT)
+
+    return make_response('', HTTP_200_OK)
 
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S
