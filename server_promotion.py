@@ -34,6 +34,7 @@ lock = Lock()
 
 # dummy data for testing
 current_promotion_id = 2
+inactive_promotions=[]
 promotions = [
     {
         'id': 0,
@@ -106,10 +107,24 @@ def get_promotions_kind(kind):
      rc = HTTP_404_NOT_FOUND         
     return make_response(json.dumps(results), rc)
 
+######################################################################
+# ACTION TO CANCEL THE PROMOTION
+######################################################################
+@app.route('/promotions/<int:id>/cancel', methods=['PUT'])
+def cancel_promotions(id):
+    index = [i for i, promotion in enumerate(promotions) if promotion['id'] == id]
+    if len(index) > 0:
+        promotions[index[0]]['status']='Inactive'
+        if promotions[index[0]]['id'] not in inactive_promotions:
+          inactive_promotions.append(promotions[index[0]]['id'])
+        print inactive_promotions
+        rc = HTTP_200_OK
+        message = {'Success' : 'Cancelled the Promotion '+ promotions[index[0]]['name'] + ' with id ' + str(id)}
+    else:
+        message = { 'error' : 'promotion with id: %s was not found' % str(id) }
+        rc = HTTP_404_NOT_FOUND
 
-
-
-
+    return make_response(jsonify(message), rc)
 
 ######################################################################
 # ADD A NEW PROMOTION
