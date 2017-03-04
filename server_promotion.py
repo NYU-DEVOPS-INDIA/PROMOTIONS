@@ -40,19 +40,23 @@ promotions = [
         'id': 0,
         'name': "Buy one, get one free",
         'description': 'Buy an item having a cost of atleast 30$ to get one free.Cost of the higher price product will be taken into account',
-        'kind':'sales-promotion1'
+        'kind':'sales-promotion1',
+        'status':'Active'
     },
     {
         'id': 1,
         'name': "Buy one, get two free",
         'description': 'Buy an item having a cost of atleast 50$ to get two free.Cost of the highest price product will be taken into account',
-        'kind':'sales-promotion2'
+        'kind':'sales-promotion2',
+        'status':'Active'
+
     },
     {
         'id': 2,
         'name': "Buy one, get two free",
         'description': 'Buy an item having a cost of atleast 50$ to get two free.Cost of the highest price product will be taken into account',
-        'kind':'sales-promotion1'
+        'kind':'sales-promotion1',
+        'status':'Active'
     }
 ]
 
