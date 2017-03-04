@@ -34,18 +34,29 @@ lock = Lock()
 
 # dummy data for testing
 current_promotion_id = 2
+inactive_promotions=[]
 promotions = [
     {
-        'id': 1,
+        'id': 0,
         'name': "Buy one, get one free",
         'description': 'Buy an item having a cost of atleast 30$ to get one free.Cost of the higher price product will be taken into account',
-        'kind':'sales-promotion'
+        'kind':'sales-promotion1',
+        'status':'Active'
+    },
+    {
+        'id': 1,
+        'name': "Buy one, get two free",
+        'description': 'Buy an item having a cost of atleast 50$ to get two free.Cost of the highest price product will be taken into account',
+        'kind':'sales-promotion2',
+        'status':'Active'
+
     },
     {
         'id': 2,
         'name': "Buy one, get two free",
         'description': 'Buy an item having a cost of atleast 50$ to get two free.Cost of the highest price product will be taken into account',
-        'kind':'sales-promotion'
+        'kind':'sales-promotion1',
+        'status':'Active'
     }
 ]
 
@@ -63,12 +74,10 @@ def index():
 @app.route('/promotions', methods=['GET'])
 def list_promotions():
     results = []
-    kind = request.args.get('kind')
-    if kind:
-        results = [promotion for promotion in promotions if promotion['kind'] == kind]
-    else:
-        results = promotions
-
+    #kind = request.args.get('kind')
+    if bool(promotions):
+        results = [promotion for promotion in enumerate(promotions)]
+        
     return make_response(jsonify(results), HTTP_200_OK)
 
 ######################################################################
@@ -92,19 +101,34 @@ def get_promotions(id):
 @app.route('/promotions/<kind>', methods=['GET'])
 def get_promotions_kind(kind):
     results=[]
-    for type in promotions:
-     if kind == type['kind']:
-        results.append(type)
-        rc = HTTP_200_OK
-    if results==[]:
+    for i,entry in enumerate(promotions):
+      if entry['kind']==kind:
+        print entry
+        results.append(entry)
+    rc = HTTP_200_OK
+    if results == []:
      results = { 'error' : 'promotion with kind: %s was not found' % str(kind) }
      rc = HTTP_404_NOT_FOUND         
-    return make_response(jsonify(results), rc)
+    return make_response(json.dumps(results), rc)
 
+######################################################################
+# ACTION TO CANCEL THE PROMOTION
+######################################################################
+@app.route('/promotions/<int:id>/cancel', methods=['PUT'])
+def cancel_promotions(id):
+    index = [i for i, promotion in enumerate(promotions) if promotion['id'] == id]
+    if len(index) > 0:
+        promotions[index[0]]['status']='Inactive'
+        if promotions[index[0]]['id'] not in inactive_promotions:
+          inactive_promotions.append(promotions[index[0]]['id'])
+        print inactive_promotions
+        rc = HTTP_200_OK
+        message = {'Success' : 'Cancelled the Promotion '+ promotions[index[0]]['name'] + ' with id ' + str(id)}
+    else:
+        message = { 'error' : 'promotion with id: %s was not found' % str(id) }
+        rc = HTTP_404_NOT_FOUND
 
-
-
-
+    return make_response(jsonify(message), rc)
 
 ######################################################################
 # ADD A NEW PROMOTION
@@ -200,4 +224,4 @@ if __name__ == "__main__":
     # Pull options from environment
     debug = (os.getenv('DEBUG', 'False') == 'True')
     port = os.getenv('PORT', '5000')
-    app.run(host='127.0.0.1', port=int(port), debug=debug)
+    app.run(host='192.168.33.10', port=int(port), debug=debug)
