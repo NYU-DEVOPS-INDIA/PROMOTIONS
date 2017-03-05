@@ -177,7 +177,7 @@ def create_promotions():
     payload = request.get_json()
     if is_valid(payload):
         id = next_index()
-        promotion = {'id': id, 'name': payload['name'], 'description':payload['description'], 'kind': payload['kind']}
+        promotion = {'id': id, 'name': payload['name'], 'description':payload['description'], 'kind': payload['kind'], 'status': 'Active'}
         promotions.append(promotion)
         message = promotion
         rc = HTTP_201_CREATED
