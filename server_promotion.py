@@ -105,14 +105,14 @@ def list_promotions():
 ######################################################################
 # LIST ALL ACTIVE PROMOTIONS
 ######################################################################
-@app.route('/promotions/<Active>', methods=['GET'])
-def list_all_active_promotions(Active):
+@app.route('/promotions/status/active', methods=['GET'])
+def list_all_active_promotions():
     index = [promotion for i, promotion in enumerate(promotions) if promotion['status'] == 'Active']
     if len(index) > 0:
         message = index
         rc = HTTP_200_OK
     else:
-        message = { 'error' : 'No promotions found'  }
+        message = { 'error' : 'No active promotions found'  }
         rc = HTTP_404_NOT_FOUND
 
     return make_response(json.dumps(message), rc)
@@ -137,7 +137,7 @@ def get_promotions(id):
 ######################################################################
 # RETRIEVE ALL PROMOTIONS BASED ON KIND
 ######################################################################
-@app.route('/promotions/<kind>', methods=['GET'])
+@app.route('/promotions/kind/<kind>', methods=['GET'])
 def get_promotions_kind(kind):
     results=[]
     for i,entry in enumerate(promotions):
@@ -164,7 +164,7 @@ def cancel_promotions(id):
         rc = HTTP_200_OK
         message = {'Success' : 'Cancelled the Promotion '+ promotions[index[0]]['name'] + ' with id ' + str(id)}
     else:
-        message = { 'error' : 'promotion with id: %s was not found' % str(id) }
+        message = { 'Cancellation error' : 'promotion with id: %s was not found' % str(id) }
         rc = HTTP_404_NOT_FOUND
 
     return make_response(jsonify(message), rc)
@@ -182,7 +182,7 @@ def create_promotions():
         message = promotion
         rc = HTTP_201_CREATED
     else:
-        message = { 'error' : 'Data is not valid' }
+        message = { 'Creation error' : 'Data is not valid' }
         rc = HTTP_400_BAD_REQUEST
 
     response = make_response(jsonify(message), rc)
@@ -206,21 +206,21 @@ def update_promotions(id):
             message = { 'error' : 'Promotion data was not valid' }
             rc = HTTP_400_BAD_REQUEST
     else:
-        message = { 'error' : 'Promotion %s was not found' % id }
+        message = { 'Update error' : 'Promotion %s was not found' % id }
         rc = HTTP_404_NOT_FOUND
 
     return make_response(jsonify(message), rc)
 ######################################################################
 # LIST ALL INACTIVE PROMOTIONS
 ######################################################################
-@app.route('/promotions/<Inactive>', methods=['GET'])
-def list_all_inactive_promotions(Inactive):
+@app.route('/promotions/status/inactive', methods=['GET'])
+def list_all_inactive_promotions():
     index = [promotion for i, promotion in enumerate(promotions) if promotion['status'] == 'Inactive']
     if len(index) > 0:
         message = index
         rc = HTTP_200_OK
     else:
-        message = { 'error' : 'No promotions found'  }
+        message = { 'error' : 'No inactive promotions found'  }
         rc = HTTP_404_NOT_FOUND
 
     return make_response(json.dumps(message), rc)
