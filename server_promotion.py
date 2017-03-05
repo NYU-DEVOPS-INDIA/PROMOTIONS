@@ -285,4 +285,4 @@ if __name__ == "__main__":
     # Pull options from environment
     debug = (os.getenv('DEBUG', 'False') == 'True')
     port = os.getenv('PORT', '5000')
-    app.run(host='192.168.33.10', port=int(port), debug=debug)
+    app.run(host='0.0.0.0', port=int(port), debug=debug)
