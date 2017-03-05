@@ -79,11 +79,45 @@ def index():
 @app.route('/promotions', methods=['GET'])
 def list_promotions():
     results = []
-    #kind = request.args.get('kind')
+    
+    kind = request.args.get('kind')
+    id = request.args.get('id')
+    print "kind"
+    print kind
+    print "id"
+    print id
     if bool(promotions):
-        results = [promotion for promotion in enumerate(promotions)]
-        
-    return make_response(jsonify(results), HTTP_200_OK)
+        if id == None and kind == None:
+            results = [promotion for i, promotion in enumerate(promotions)]
+        if id == None and kind != None:
+            #print "inside kind"
+            results = [promotion for i, promotion in enumerate(promotions) if promotion['kind']== kind]
+        if id != None and kind == None:
+            #print "inside id"
+            #for promotion in promotions:
+            #    print promotion['id']
+            #    if promotion['id'] == int(id):
+            #        results.append(promotion)
+            results = [promotion for i, promotion in enumerate(promotions) if promotion['id']==int(id)]
+    #print type(results)
+    return make_response(json.dumps(results), HTTP_200_OK)
+
+######################################################################
+# LIST ALL ACTIVE PROMOTIONS
+######################################################################
+@app.route('/promotions/<Active>', methods=['GET'])
+def list__all_promotions(Active):
+    index = [promotion for i, promotion in enumerate(promotions) if promotion['status'] == 'Active']
+    if len(index) > 0:
+        message = index
+        rc = HTTP_200_OK
+    else:
+        message = { 'error' : 'No promotions found'  }
+        rc = HTTP_404_NOT_FOUND
+
+    return make_response(json.dumps(message), rc)
+
+
 
 ######################################################################
 # RETRIEVE A PROMOTION
