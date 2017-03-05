@@ -15,7 +15,7 @@
 import os
 import logging
 from threading import Lock
-from flask import Flask, Response, jsonify, request, make_response, json, url_for
+from flask import Flask, Response, jsonify, request, make_response, json, url_for, render_template
 
 # Create Flask application
 app = Flask(__name__)
@@ -106,7 +106,7 @@ def list_promotions():
 # LIST ALL ACTIVE PROMOTIONS
 ######################################################################
 @app.route('/promotions/<Active>', methods=['GET'])
-def list__all_promotions(Active):
+def list_all_active_promotions(Active):
     index = [promotion for i, promotion in enumerate(promotions) if promotion['status'] == 'Active']
     if len(index) > 0:
         message = index
@@ -210,6 +210,20 @@ def update_promotions(id):
         rc = HTTP_404_NOT_FOUND
 
     return make_response(jsonify(message), rc)
+######################################################################
+# LIST ALL INACTIVE PROMOTIONS
+######################################################################
+@app.route('/promotions/<Inactive>', methods=['GET'])
+def list_all_inactive_promotions(Inactive):
+    index = [promotion for i, promotion in enumerate(promotions) if promotion['status'] == 'Inactive']
+    if len(index) > 0:
+        message = index
+        rc = HTTP_200_OK
+    else:
+        message = { 'error' : 'No promotions found'  }
+        rc = HTTP_404_NOT_FOUND
+
+    return make_response(json.dumps(message), rc)
 
 ######################################################################
 # DELETE A PROMOTION
