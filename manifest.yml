@@ -1,0 +1,11 @@
+applications:
+- path: .
+  memory: 128M
+  instances: 1
+  domain: mybluemix.net
+  name: nyu-devops-india-promotions
+  host: nyu-devops-india-promotions
+  disk_quota: 1024M
+  services:
+  - RedisCloud
+  buildpack: python_buildpack
