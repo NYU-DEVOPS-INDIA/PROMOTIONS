@@ -228,20 +228,15 @@ def list_all_inactive_promotions():
 ######################################################################
 # DELETE A PROMOTION
 ######################################################################
-@app.route('/promotions/delete/<int:id>', methods=['DELETE'])
+@app.route('/promotions/<int:id>', methods=['DELETE'])
 def delete_promotions(id):
     global inactive_promotions
-    inactive_promotions_length = len(inactive_promotions)
     inactive_promotions = [x for x in inactive_promotions if x != id]
 
     global promotions
-    promotions_length = len(promotions)
     promotions = [x for x in promotions if x['id'] != id]
-    
-    if (inactive_promotions_length == len(inactive_promotions) and promotions_length == len(promotions)):
-        return make_response('', HTTP_204_NO_CONTENT)
 
-    return make_response('', HTTP_200_OK)
+    return make_response('', HTTP_204_NO_CONTENT)
 
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S
