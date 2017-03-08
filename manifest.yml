@@ -3,8 +3,8 @@ applications:
   memory: 128M
   instances: 1
   domain: mybluemix.net
-  name: nyu-devops-india-promotions
-  host: nyu-devops-india-promotions
+  name: nyu-promotions-service
+  host: nyu-promotions-service
   disk_quota: 1024M
   services:
   - RedisCloud
