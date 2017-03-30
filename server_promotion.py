@@ -61,6 +61,13 @@ promotions = [
         'description': 'Buy an item having a cost of atleast 50$ to get two free.Cost of the highest price product will be taken into account',
         'kind':'sales-promotion1',
         'status':'Active'
+    },
+    {
+        'id': 3,
+        'name': "Buy one, get one half price",
+        'description': 'Buy an item having a cost of atleast 50$ to get one half price.Cost of the highest price product will be taken into account',
+        'kind':'sales-promotion1',
+        'status':'Inactive'
     }
 ]
 
@@ -82,10 +89,6 @@ def list_promotions():
     
     kind = request.args.get('kind')
     id = request.args.get('id')
-    print "kind"
-    print kind
-    print "id"
-    print id
     if bool(promotions):
         if id == None and kind == None:
             results = [promotion for i, promotion in enumerate(promotions)]
@@ -100,7 +103,7 @@ def list_promotions():
             #        results.append(promotion)
             results = [promotion for i, promotion in enumerate(promotions) if promotion['id']==int(id)]
     #print type(results)
-    return make_response(json.dumps(results), HTTP_200_OK)
+    return make_response(jsonify(results), HTTP_200_OK)
 
 ######################################################################
 # LIST ALL ACTIVE PROMOTIONS
@@ -115,9 +118,22 @@ def list_all_active_promotions():
         message = { 'error' : 'No active promotions found'  }
         rc = HTTP_404_NOT_FOUND
 
-    return make_response(json.dumps(message), rc)
+    return make_response(jsonify(message), rc)
 
+######################################################################
+# LIST ALL INACTIVE PROMOTIONS
+######################################################################
+@app.route('/promotions/status/inactive', methods=['GET'])
+def list_all_inactive_promotions():
+    index = [promotion for i, promotion in enumerate(promotions) if promotion['status'] == 'Inactive']
+    if len(index) > 0:
+        message = index
+        rc = HTTP_200_OK
+    else:
+        message = { 'error' : 'No inactive promotions found'  }
+        rc = HTTP_404_NOT_FOUND
 
+    return make_response(jsonify(message), rc)
 
 ######################################################################
 # RETRIEVE A PROMOTION
@@ -142,13 +158,13 @@ def get_promotions_kind(kind):
     results=[]
     for i,entry in enumerate(promotions):
       if entry['kind']==kind:
-        print entry
+        #print entry
         results.append(entry)
     rc = HTTP_200_OK
     if results == []:
      results = { 'error' : 'promotion with kind: %s was not found' % str(kind) }
      rc = HTTP_404_NOT_FOUND         
-    return make_response(json.dumps(results), rc)
+    return make_response(jsonify(results), rc)
 
 ######################################################################
 # ACTION TO CANCEL THE PROMOTION
@@ -160,7 +176,7 @@ def cancel_promotions(id):
         promotions[index[0]]['status']='Inactive'
         if promotions[index[0]]['id'] not in inactive_promotions:
           inactive_promotions.append(promotions[index[0]]['id'])
-        print inactive_promotions
+        #print inactive_promotions
         rc = HTTP_200_OK
         message = {'Success' : 'Cancelled the Promotion '+ promotions[index[0]]['name'] + ' with id ' + str(id)}
     else:
@@ -210,20 +226,6 @@ def update_promotions(id):
         rc = HTTP_404_NOT_FOUND
 
     return make_response(jsonify(message), rc)
-######################################################################
-# LIST ALL INACTIVE PROMOTIONS
-######################################################################
-@app.route('/promotions/status/inactive', methods=['GET'])
-def list_all_inactive_promotions():
-    index = [promotion for i, promotion in enumerate(promotions) if promotion['status'] == 'Inactive']
-    if len(index) > 0:
-        message = index
-        rc = HTTP_200_OK
-    else:
-        message = { 'error' : 'No inactive promotions found'  }
-        rc = HTTP_404_NOT_FOUND
-
-    return make_response(json.dumps(message), rc)
 
 ######################################################################
 # DELETE A PROMOTION
