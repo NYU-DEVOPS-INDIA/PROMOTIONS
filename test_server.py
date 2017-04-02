@@ -29,6 +29,16 @@ class TestPromotionServer(unittest.TestCase):
         resp = self.app.get('/')
         self.assertEqual( resp.status_code, status.HTTP_200_OK )
         self.assertTrue ('Promotions REST API' in resp.data)
+
+    def test_get_promotion(self):
+        resp = self.app.get('/promotions/2')
+        self.assertEqual( resp.status_code, status.HTTP_200_OK )
+        data = json.loads(resp.data)
+        self.assertEqual (data['name'], 'Buy one, get two free')
+
+    def test_get_nonexisting_promotion(self):
+        resp = self.app.get('/promotions/5')
+        self.assertEqual( resp.status_code, status.HTTP_404_NOT_FOUND )
     
     def test_cancel_promotions_not_present(self):
         resp = self.app.put('/promotions/4/cancel')
