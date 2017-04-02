@@ -16,6 +16,10 @@ import os
 import logging
 from threading import Lock
 from flask import Flask, Response, jsonify, request, make_response, json, url_for, render_template
+from flask_api import status    # HTTP Status Codes
+from redis import Redis
+from redis.exceptions import ConnectionError
+from promotion import Promotion
 
 # Create Flask application
 app = Flask(__name__)
@@ -28,41 +32,6 @@ HTTP_204_NO_CONTENT = 204
 HTTP_400_BAD_REQUEST = 400
 HTTP_404_NOT_FOUND = 404
 HTTP_409_CONFLICT = 409
-
-# Lock for thread-safe counter increment
-lock = Lock()
-
-# dummy data for testing
-current_promotion_id = 2
-
-# has IDs of all inactive promotions
-inactive_promotions= list()
-
-# has information of all the promotions (both active and inactive)
-promotions = [
-    {
-        'id': 0,
-        'name': "Buy one, get one free",
-        'description': 'Buy an item having a cost of atleast 30$ to get one free.Cost of the higher price product will be taken into account',
-        'kind':'sales-promotion1',
-        'status':'Active'
-    },
-    {
-        'id': 1,
-        'name': "Buy one, get two free",
-        'description': 'Buy an item having a cost of atleast 50$ to get two free.Cost of the highest price product will be taken into account',
-        'kind':'sales-promotion2',
-        'status':'Active'
-
-    },
-    {
-        'id': 2,
-        'name': "Buy one, get two free",
-        'description': 'Buy an item having a cost of atleast 50$ to get two free.Cost of the highest price product will be taken into account',
-        'kind':'sales-promotion1',
-        'status':'Active'
-    }
-]
 
 ######################################################################
 # GET INDEX
@@ -82,40 +51,33 @@ def list_promotions():
     
     kind = request.args.get('kind')
     id = request.args.get('id')
-    print "kind"
-    print kind
-    print "id"
-    print id
-    if bool(promotions):
-        if id == None and kind == None:
-            results = [promotion for i, promotion in enumerate(promotions)]
-        if id == None and kind != None:
-            #print "inside kind"
-            results = [promotion for i, promotion in enumerate(promotions) if promotion['kind']== kind]
-        if id != None and kind == None:
-            #print "inside id"
-            #for promotion in promotions:
-            #    print promotion['id']
-            #    if promotion['id'] == int(id):
-            #        results.append(promotion)
-            results = [promotion for i, promotion in enumerate(promotions) if promotion['id']==int(id)]
-    #print type(results)
-    return make_response(json.dumps(results), HTTP_200_OK)
+    if kind:
+        result = Promotion.find_by_kind(redis, kind)
+    else:
+        result = Promotion.all(redis)
+    if len(result) > 0:
+       results = [Promotion.serialize(promotion) for promotion in result]
+       return make_response(jsonify(results), HTTP_200_OK)
+    else:
+       results = { 'error' : 'No promotions found'  }
+       rc = HTTP_404_NOT_FOUND
+       return make_response(jsonify(results), rc)
+
 
 ######################################################################
 # LIST ALL ACTIVE PROMOTIONS
 ######################################################################
 @app.route('/promotions/status/active', methods=['GET'])
 def list_all_active_promotions():
-    index = [promotion for i, promotion in enumerate(promotions) if promotion['status'] == 'Active']
-    if len(index) > 0:
-        message = index
+    results = Promotion.find_by_status(redis, 'ACTIVE')
+    if len(results) > 0:
+        result = [Promotion.serialize(promotion) for promotion in results]
         rc = HTTP_200_OK
     else:
-        message = { 'error' : 'No active promotions found'  }
+        result = { 'error' : 'No active promotions found'  }
         rc = HTTP_404_NOT_FOUND
 
-    return make_response(json.dumps(message), rc)
+    return make_response(json.dumps(result), rc)
 
 
 
@@ -124,12 +86,12 @@ def list_all_active_promotions():
 ######################################################################
 @app.route('/promotions/<int:id>', methods=['GET'])
 def get_promotions(id):
-    index = [i for i, promotion in enumerate(promotions) if promotion['id'] == id]
-    if len(index) > 0:
-        message = promotions[index[0]]
+    promotion = Promotion.find(redis, id)
+    if promotion:
+        message = promotion.serialize()
         rc = HTTP_200_OK
     else:
-        message = { 'error' : 'promotion with id: %s was not found' % str(id) }
+        message = { 'error' : 'Promotion with id: %s was not found' % str(id) }
         rc = HTTP_404_NOT_FOUND
 
     return make_response(jsonify(message), rc)
@@ -139,50 +101,52 @@ def get_promotions(id):
 ######################################################################
 @app.route('/promotions/kind/<kind>', methods=['GET'])
 def get_promotions_kind(kind):
-    results=[]
-    for i,entry in enumerate(promotions):
-      if entry['kind']==kind:
-        print entry
-        results.append(entry)
-    rc = HTTP_200_OK
-    if results == []:
-     results = { 'error' : 'promotion with kind: %s was not found' % str(kind) }
-     rc = HTTP_404_NOT_FOUND         
-    return make_response(json.dumps(results), rc)
+    results = Promotion.find_by_kind(redis, kind.upper())
+    if len(results) > 0:
+        result = [Promotion.serialize(promotion) for promotion in results]
+        rc = HTTP_200_OK
+    else:
+        result = { 'error' : 'Promotion with kind: %s was not found' % str(kind)  }
+        rc = HTTP_404_NOT_FOUND
+
+    return make_response(json.dumps(result), rc)
+
+    
 
 ######################################################################
 # ACTION TO CANCEL THE PROMOTION
 ######################################################################
 @app.route('/promotions/<int:id>/cancel', methods=['PUT'])
 def cancel_promotions(id):
-    index = [i for i, promotion in enumerate(promotions) if promotion['id'] == id]
-    if len(index) > 0:
-        promotions[index[0]]['status']='Inactive'
-        if promotions[index[0]]['id'] not in inactive_promotions:
-          inactive_promotions.append(promotions[index[0]]['id'])
-        print inactive_promotions
+    promotion = Promotion.find(redis, id)
+    if promotion:
+        promotion = Promotion.cancel_by_id(redis,id)
+        promotion.save(redis)
+        message = {'Success' : 'Cancelled the Promotion with id ' + str(id)}
         rc = HTTP_200_OK
-        message = {'Success' : 'Cancelled the Promotion '+ promotions[index[0]]['name'] + ' with id ' + str(id)}
     else:
-        message = { 'Cancellation error' : 'promotion with id: %s was not found' % str(id) }
+        message = { 'error' : 'Promotion %s was not found' % id }
         rc = HTTP_404_NOT_FOUND
 
-    return make_response(jsonify(message), rc)
+    return make_response(jsonify(message), rc)    
+    
 
 ######################################################################
 # ADD A NEW PROMOTION
 ######################################################################
 @app.route('/promotions', methods=['POST'])
 def create_promotions():
+    id = 0
     payload = request.get_json()
-    if is_valid(payload):
-        id = next_index()
-        promotion = {'id': id, 'name': payload['name'], 'description':payload['description'], 'kind': payload['kind'], 'status': 'Active'}
-        promotions.append(promotion)
-        message = promotion
+    print payload
+    if Promotion.validate(payload):
+        promotion = Promotion(id, payload['name'], payload['description'], payload['kind'], 'Active')
+        promotion.save(redis)
+        id = promotion.id
+        message = promotion.serialize()
         rc = HTTP_201_CREATED
     else:
-        message = { 'Creation error' : 'Data is not valid' }
+        message = { 'error' : 'Data is not valid' }
         rc = HTTP_400_BAD_REQUEST
 
     response = make_response(jsonify(message), rc)
@@ -195,18 +159,21 @@ def create_promotions():
 ######################################################################
 @app.route('/promotions/<int:id>', methods=['PUT'])
 def update_promotions(id):
-    index = [i for i, promotion in enumerate(promotions) if promotion['id'] == id]
-    if len(index) > 0:
+    promotion = Promotion.find(redis, id)
+    if promotion:
         payload = request.get_json()
-        if is_valid(payload):
-            promotions[index[0]] = {'id': id, 'name': payload['name'],'description':payload['description'], 'kind': payload['kind']}
-            message = promotions[index[0]]
+        payload['id']=id
+        print 'payload is',payload
+        if Promotion.validate(payload):
+            promotion = Promotion.from_dict(payload)
+            promotion.save(redis)
+            message = promotion.serialize()
             rc = HTTP_200_OK
         else:
             message = { 'error' : 'Promotion data was not valid' }
             rc = HTTP_400_BAD_REQUEST
     else:
-        message = { 'Update error' : 'Promotion %s was not found' % id }
+        message = { 'error' : 'Promotion %s was not found' % id }
         rc = HTTP_404_NOT_FOUND
 
     return make_response(jsonify(message), rc)
@@ -215,51 +182,35 @@ def update_promotions(id):
 ######################################################################
 @app.route('/promotions/status/inactive', methods=['GET'])
 def list_all_inactive_promotions():
-    index = [promotion for i, promotion in enumerate(promotions) if promotion['status'] == 'Inactive']
-    if len(index) > 0:
-        message = index
+    results = Promotion.find_by_status(redis, 'INACTIVE')
+    if len(results) > 0:
+        result = [Promotion.serialize(promotion) for promotion in results]
         rc = HTTP_200_OK
     else:
-        message = { 'error' : 'No inactive promotions found'  }
+        result = { 'error' : 'No active promotions found'  }
         rc = HTTP_404_NOT_FOUND
 
-    return make_response(json.dumps(message), rc)
+    return make_response(json.dumps(result), rc)
 
 ######################################################################
 # DELETE A PROMOTION
 ######################################################################
 @app.route('/promotions/<int:id>', methods=['DELETE'])
 def delete_promotions(id):
-    global inactive_promotions
-    inactive_promotions = [x for x in inactive_promotions if x != id]
-
-    global promotions
-    promotions = [x for x in promotions if x['id'] != id]
-
+    promotion = Promotion.find(redis, id)
+    if promotion:
+       promotion.delete(redis)
     return make_response('', HTTP_204_NO_CONTENT)
 
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S
 ######################################################################
-def next_index():
-    global current_promotion_id
-    with lock:
-        current_promotion_id += 1
-    return current_promotion_id
+def data_load(payload):
+    promotion = Promotion(0, payload['name'], payload['description'], payload['kind'],payload['status'])
+    promotion.save(redis)
 
-def is_valid(data):
-    valid = False
-    try:
-        name = data['name']
-        kind = data['kind']
-        description=data['description']
-        valid = True
-    except KeyError as err:
-        app.logger.warn('Missing parameter error: %s', err)
-    except TypeError as err:
-        app.logger.warn('Invalid Content Type error: %s', err)
-
-    return valid
+def data_reset():
+    redis.flushall()
 
 @app.before_first_request
 def setup_logging():
@@ -274,10 +225,52 @@ def setup_logging():
         app.logger.addHandler(handler)
 
 ######################################################################
+# Connect to Redis and catch connection exceptions
+######################################################################
+def connect_to_redis(hostname, port, password):
+    redis = Redis(host=hostname, port=port, password=password)
+    try:
+        redis.ping()
+    except ConnectionError:
+        redis = None
+    return redis
+
+
+######################################################################
+# INITIALIZE Redis
+# This method will work in the following conditions:
+#   1) In Bluemix with Redis bound through VCAP_SERVICES
+#   2) With Redis running on the local server as with Travis CI
+#   3) With Redis --link ed in a Docker container called 'redis'
+######################################################################
+def inititalize_redis():
+    global redis
+    redis = None
+    # Get the crdentials from the Bluemix environment
+    if 'VCAP_SERVICES' in os.environ:
+        app.logger.info("Using VCAP_SERVICES...")
+        VCAP_SERVICES = os.environ['VCAP_SERVICES']
+        services = json.loads(VCAP_SERVICES)
+        creds = services['rediscloud'][0]['credentials']
+        app.logger.info("Conecting to Redis on host %s port %s" % (creds['hostname'], creds['port']))
+        redis = connect_to_redis(creds['hostname'], creds['port'], creds['password'])
+    else:
+        app.logger.info("VCAP_SERVICES not found, checking localhost for Redis")
+        redis = connect_to_redis('127.0.0.1', 6379, None)
+        if not redis:
+            app.logger.info("No Redis on localhost, using: redis")
+            redis = connect_to_redis('redis', 6379, None)
+    if not redis:
+        # if you end up here, redis instance is down.
+        app.logger.error('*** FATAL ERROR: Could not connect to the Redis Service')
+        exit(1) 
+
+######################################################################
 #   M A I N
 ######################################################################
 if __name__ == "__main__":
     # Pull options from environment
     debug = (os.getenv('DEBUG', 'False') == 'True')
+    inititalize_redis()
     port = os.getenv('PORT', '5000')
     app.run(host='0.0.0.0', port=int(port), debug=debug)
