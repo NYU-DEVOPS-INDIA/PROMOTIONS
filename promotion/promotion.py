@@ -84,8 +84,8 @@ class Promotion(object):
         for key in redis.keys():
             if key != 'index':  # filer out our id index
                 data = redis.hgetall(key)
-                if data['kind'].upper() == kind:
-                    results.append(Promotion.from_dict(data))
+            if data['kind'].upper() == kind.upper():
+               results.append(Promotion.from_dict(data))
         return results
 
     @staticmethod
