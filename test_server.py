@@ -39,6 +39,25 @@ class TestPromotionServer(unittest.TestCase):
     def test_get_nonexisting_promotion(self):
         resp = self.app.get('/promotions/5')
         self.assertEqual( resp.status_code, status.HTTP_404_NOT_FOUND )
+
+    def test_get_promotion_kind(self):
+        resp = self.app.get('/promotions/kind/sales-promotion3')
+        self.assertEqual( resp.status_code, status.HTTP_200_OK )
+        data = json.loads(resp.data)
+        self.assertTrue(len(data) > 0)
+        for abc in data:
+         self.assertEqual(abc['name'], 'Buy one, get two free')
+         
+    def test_query_promotion_kind(self):
+        resp = self.app.get('/promotions?kind=sales-promotion1')
+        print 'resp data is',resp.data
+        self.assertEqual( resp.status_code, status.HTTP_200_OK )
+        data = json.loads(resp.data)
+        self.assertTrue(len(data) > 0)
+
+    def test_get_nonexisting_promotionkind(self):
+        resp = self.app.get('/promotions/kind/sales')
+        self.assertEqual( resp.status_code, status.HTTP_404_NOT_FOUND )     
     
     def test_cancel_promotions_not_present(self):
         resp = self.app.put('/promotions/4/cancel')
