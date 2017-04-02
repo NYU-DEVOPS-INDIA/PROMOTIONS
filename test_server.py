@@ -37,6 +37,31 @@ class TestPromotionServer(unittest.TestCase):
     def test_cancel_promotions_present(self):
         resp = self.app.put('/promotions/3/cancel')
         self.assertEqual( resp.status_code, status.HTTP_200_OK )
+ 
+    def test_update_promotions_not_present(self):
+        resp = self.app.put('/promotions/4')
+        self.assertEqual( resp.status_code, status.HTTP_404_NOT_FOUND )
+
+    def test_update_promotions_with_no_data(self):
+        resp = self.app.put('/promotions/3', data=None, content_type='application/json')
+        self.assertEqual( resp.status_code, status.HTTP_400_BAD_REQUEST )
+
+    def test_update_promotions_present_valid_data(self):
+        updated_promotion = {"name": "Buy one, get two free","description": "Buy an item having a cost of atleast 90$ to get three free.Cost of the higher price product will be taken into account", "kind": "sales-promotion3","status": "Active"}
+        data = json.dumps(updated_promotion)
+        resp = self.app.put('/promotions/3', data=data, content_type='application/json')
+        self.assertEqual( resp.status_code, status.HTTP_200_OK )
+        data = json.loads(resp.data)
+        self.assertTrue("atleast 90$" in data['description'])
+        self.assertEqual(data['kind'], 'sales-promotion3')
+        self.assertEqual(data['status'], 'Active')
+        self.assertEqual (data['name'], 'Buy one, get two free')
+
+    def test_update_promotions_present_invalid_data(self):
+        updated_promotion = {"name": "Buy one, get two free","description": "Buy an item having a cost of atleast 90$ to get three free.Cost of the higher price product will be taken into account", "status": "Active"}
+        data = json.dumps(updated_promotion)
+        resp = self.app.put('/promotions/3', data=data, content_type='application/json')
+        self.assertEqual( resp.status_code, status.HTTP_400_BAD_REQUEST )
     
     
 ######################################################################
