@@ -45,5 +45,16 @@ Scenario: Retrieve promotion(not present) with id
     Then I should not see "atleast 40$"
     Then I should not see "atleast 60$"
 
+Scenario: List active promotions
+    Given the following promotions
+        |  name  |  kind  | description  |
+        |  Buy one, get one free  |  sales-promotion1  |  Buy an item having a cost of atleast 20$ to get one free.Cost of the higher price product will be taken into account |
+        |  Buy one, get two free  |  sales-promotion3  |  Buy an item having a cost of atleast 40$ to get two free.Cost of the higher price product will be taken into account |
+        |  Buy one, get two free  |  sales-promotion3  |  Buy an item having a cost of atleast 60$ to get two free.Cost of the higher price product will be taken into account |
+
+    When I visit the active promotions "/promotions/status/active"
+    Then I should see "atleast 20$"
+    Then I should see "atleast 40$"
+    Then I should see "atleast 60$"
 
 

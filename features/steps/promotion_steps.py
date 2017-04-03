@@ -40,6 +40,9 @@ def step_impl(context, url, id):
     context.resp = context.app.get(target_url)
     assert context.resp.status_code == 404
 
-
+@when(u'I visit the active promotions "{url}"')
+def step_impl(context, url):
+    context.resp = context.app.get(url)
+    assert context.resp.status_code == 200
 
 
