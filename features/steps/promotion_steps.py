@@ -27,3 +27,19 @@ def step_impl(context):
 def step_impl(context, url):
     context.resp = context.app.get(url)
     assert context.resp.status_code == 200
+
+@when(u'I visit the promotion "{url}" with id "{id}"')
+def step_impl(context, url, id):
+    target_url = url + '/' + id
+    context.resp = context.app.get(target_url)
+    assert context.resp.status_code == 200
+
+@when(u'I visit the not present promotion "{url}" with id "{id}"')
+def step_impl(context, url, id):
+    target_url = url + '/' + id
+    context.resp = context.app.get(target_url)
+    assert context.resp.status_code == 404
+
+
+
+
