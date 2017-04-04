@@ -7,6 +7,7 @@ import logging
 import json
 from flask_api import status    # HTTP Status Codes
 import server_promotion as server
+from promotion import Promotion
 
 ######################################################################
 #  T E S T   C A S E S
@@ -102,7 +103,13 @@ class TestPromotionServer(unittest.TestCase):
         new_count = self.get_promotion_count()
         self.assertEqual( new_count, promotion_count - 1)
 
-
+    def test_is_valid(self):
+        lack_arguments_input = {"name": "Buy one, get two free", "status": "Active"}
+        self.assertFalse(Promotion.validate(lack_arguments_input))
+        incorrect_type_input = {"name": 1, "description" : "empty", "status": "Inactive"}
+        self.assertFalse(Promotion.validate(incorrect_type_input))
+        correct_input = {"name": "Buy one, get two free","description": "Buy an item having a cost of atleast 90$ to get three free.Cost of the higher price product will be taken into account", "status": "Active"}
+        self.assertFalse(Promotion.validate(correct_input))
     
 ######################################################################
 # Utility functions
