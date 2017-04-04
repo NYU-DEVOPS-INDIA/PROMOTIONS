@@ -52,8 +52,8 @@ class Promotion(object):
         try:
             name = data['name']
             kind = data['kind']
-            description=data['description']
-            valid = True
+            description = data['description']
+            valid = len(data) == 3 and isinstance(name, basestring) and isinstance(kind, basestring) and isinstance(description, basestring)
         except KeyError:
             valid = False
         except TypeError:

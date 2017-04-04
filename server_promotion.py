@@ -63,7 +63,6 @@ def list_promotions():
        rc = HTTP_404_NOT_FOUND
        return make_response(jsonify(results), rc)
 
-
 ######################################################################
 # LIST ALL ACTIVE PROMOTIONS
 ######################################################################
@@ -77,9 +76,7 @@ def list_all_active_promotions():
         result = { 'error' : 'No active promotions found'  }
         rc = HTTP_404_NOT_FOUND
 
-    return make_response(json.dumps(result), rc)
-
-
+    return make_response(jsonify(result), rc)
 
 ######################################################################
 # RETRIEVE A PROMOTION
@@ -109,9 +106,7 @@ def get_promotions_kind(kind):
         result = { 'error' : 'Promotion with kind: %s was not found' % str(kind)  }
         rc = HTTP_404_NOT_FOUND
 
-    return make_response(json.dumps(result), rc)
-
-    
+    return make_response(jsonify(result), rc)
 
 ######################################################################
 # ACTION TO CANCEL THE PROMOTION
@@ -128,8 +123,7 @@ def cancel_promotions(id):
         message = { 'error' : 'Promotion %s was not found' % id }
         rc = HTTP_404_NOT_FOUND
 
-    return make_response(jsonify(message), rc)    
-    
+    return make_response(jsonify(message), rc)
 
 ######################################################################
 # ADD A NEW PROMOTION
@@ -157,15 +151,15 @@ def create_promotions():
 ######################################################################
 # UPDATE AN EXISTING PROMOTION
 ######################################################################
+# Can only update name/description/kind
 @app.route('/promotions/<int:id>', methods=['PUT'])
 def update_promotions(id):
     promotion = Promotion.find(redis, id)
     if promotion:
         payload = request.get_json()
-        payload['id']=id
         print 'payload is',payload
         if Promotion.validate(payload):
-            promotion = Promotion.from_dict(payload)
+            promotion = Promotion(id, payload['name'], payload['description'], payload['kind'], promotion.status)
             promotion.save(redis)
             message = promotion.serialize()
             rc = HTTP_200_OK
@@ -175,8 +169,8 @@ def update_promotions(id):
     else:
         message = { 'error' : 'Promotion %s was not found' % id }
         rc = HTTP_404_NOT_FOUND
-
     return make_response(jsonify(message), rc)
+
 ######################################################################
 # LIST ALL INACTIVE PROMOTIONS
 ######################################################################
@@ -189,8 +183,7 @@ def list_all_inactive_promotions():
     else:
         result = { 'error' : 'No active promotions found'  }
         rc = HTTP_404_NOT_FOUND
-
-    return make_response(json.dumps(result), rc)
+    return make_response(jsonify(result), rc)
 
 ######################################################################
 # DELETE A PROMOTION
