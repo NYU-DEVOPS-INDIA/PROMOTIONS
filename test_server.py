@@ -33,7 +33,8 @@ class TestPromotionServer(unittest.TestCase):
     def test_get_promotion_list(self):
         resp = self.app.get('/promotions')
         self.assertEqual( resp.status_code, status.HTTP_200_OK )
-        self.assertTrue( len(resp.data) > 0 )
+        data = json.loads(resp.data)
+        self.assertTrue( len(data) > 0 )
 
     def test_get_promotion(self):
         resp = self.app.get('/promotions/2')
