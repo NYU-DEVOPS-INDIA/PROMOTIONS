@@ -77,14 +77,13 @@ class TestPromotionServer(unittest.TestCase):
         self.assertEqual( resp.status_code, status.HTTP_400_BAD_REQUEST )
 
     def test_update_promotions_present_valid_data(self):
-        updated_promotion = {"name": "Buy one, get two free","description": "Buy an item having a cost of atleast 90$ to get three free.Cost of the higher price product will be taken into account", "kind": "sales-promotion3","status": "Active"}
+        updated_promotion = {"name": "Buy one, get two free","description": "Buy an item having a cost of atleast 90$ to get three free.Cost of the higher price product will be taken into account", "kind": "sales-promotion3"}
         data = json.dumps(updated_promotion)
         resp = self.app.put('/promotions/3', data=data, content_type='application/json')
         self.assertEqual( resp.status_code, status.HTTP_200_OK )
         data = json.loads(resp.data)
         self.assertTrue("atleast 90$" in data['description'])
         self.assertEqual(data['kind'], 'sales-promotion3')
-        self.assertEqual(data['status'], 'Active')
         self.assertEqual (data['name'], 'Buy one, get two free')
 
     def test_update_promotions_present_invalid_data(self):
@@ -103,13 +102,13 @@ class TestPromotionServer(unittest.TestCase):
         new_count = self.get_promotion_count()
         self.assertEqual( new_count, promotion_count - 1)
 
-    def test_is_valid(self):
-        lack_arguments_input = {"name": "Buy one, get two free", "status": "Active"}
+    def test_validate(self):
+        lack_arguments_input = {"name": "Buy one, get two free", "kind": "sales-promotion1"}
         self.assertFalse(Promotion.validate(lack_arguments_input))
-        incorrect_type_input = {"name": 1, "description" : "empty", "status": "Inactive"}
+        incorrect_type_input = {"name": 1, "description" : "empty", "kind": "sales-promotion3"}
         self.assertFalse(Promotion.validate(incorrect_type_input))
-        correct_input = {"name": "Buy one, get two free","description": "Buy an item having a cost of atleast 90$ to get three free.Cost of the higher price product will be taken into account", "status": "Active"}
-        self.assertFalse(Promotion.validate(correct_input))
+        correct_input = {"name": "Buy one, get two free","description": "Buy an item having a cost of atleast 90$ to get three free.Cost of the higher price product will be taken into account", "kind": "sales-promotion3"}
+        self.assertTrue(Promotion.validate(correct_input))
     
 ######################################################################
 # Utility functions

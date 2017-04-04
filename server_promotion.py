@@ -151,15 +151,15 @@ def create_promotions():
 ######################################################################
 # UPDATE AN EXISTING PROMOTION
 ######################################################################
+# Can only update name/description/kind
 @app.route('/promotions/<int:id>', methods=['PUT'])
 def update_promotions(id):
     promotion = Promotion.find(redis, id)
     if promotion:
         payload = request.get_json()
-        payload['id']=id
         print 'payload is',payload
         if Promotion.validate(payload):
-            promotion = Promotion.from_dict(payload)
+            promotion = Promotion(id, payload['name'], payload['description'], payload['kind'], promotion.status)
             promotion.save(redis)
             message = promotion.serialize()
             rc = HTTP_200_OK

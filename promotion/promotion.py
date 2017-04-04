@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import json
 
 class Promotion(object):
 
@@ -52,8 +53,8 @@ class Promotion(object):
         try:
             name = data['name']
             kind = data['kind']
-            description=data['description']
-            valid = True
+            description = data['description']
+            valid = len(data) == 3 and isinstance(name, basestring) and isinstance(kind, basestring) and isinstance(description, basestring)
         except KeyError:
             valid = False
         except TypeError:
