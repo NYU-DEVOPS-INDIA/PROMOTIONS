@@ -31,6 +31,12 @@ class TestPromotionServer(unittest.TestCase):
         self.assertEqual( resp.status_code, status.HTTP_200_OK )
         self.assertTrue ('Promotions REST API' in resp.data)
 
+    def test_get_promotion_list(self):
+        resp = self.app.get('/promotions')
+        self.assertEqual( resp.status_code, status.HTTP_200_OK )
+        data = json.loads(resp.data)
+        self.assertTrue( len(data) > 0 )
+
     def test_get_promotion(self):
         resp = self.app.get('/promotions/2')
         self.assertEqual( resp.status_code, status.HTTP_200_OK )
