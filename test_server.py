@@ -40,6 +40,14 @@ class TestPromotionServer(unittest.TestCase):
         resp = self.app.get('/promotions/5')
         self.assertEqual( resp.status_code, status.HTTP_404_NOT_FOUND )
 
+    def test_get_active_promotion(self):
+        resp = self.app.get('/promotions/status/active')
+        self.assertEqual( resp.status_code, status.HTTP_200_OK )
+        active_promotions = json.loads(resp.data)
+        self.assertTrue( len(active_promotions) > 0 )
+        for data in active_promotions:
+         self.assertEqual( data['status'], 'Active')
+
     def test_get_promotion_kind(self):
         resp = self.app.get('/promotions/kind/sales-promotion3')
         self.assertEqual( resp.status_code, status.HTTP_200_OK )
