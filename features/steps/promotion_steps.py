@@ -45,12 +45,18 @@ def step_impl(context, url):
     context.resp = context.app.get(url)
     assert context.resp.status_code == 200
 
-@when(u'I visit the cancel a promotion with id 1 "{url}"')
+@when(u'I visit the inactive promotions "{url}"')
+def step_impl(context, url):
+    context.resp = context.app.get(url)
+    assert context.resp.status_code == 200
+
+
+@when(u'I visit the cancel a promotion with id "{url}"')
 def step_impl(context, url):
     context.resp = context.app.put(url)
     assert context.resp.status_code == 200 
 
-@when(u'I visit the cancel a promotion with id 4 "{url}"')
+@when(u'I visit the cancel a not present promotion with id "{url}"')
 def step_impl(context, url):
     context.resp = context.app.put(url)
     assert context.resp.status_code == 404     
