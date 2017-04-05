@@ -45,4 +45,12 @@ def step_impl(context, url):
     context.resp = context.app.get(url)
     assert context.resp.status_code == 200
 
+@when(u'I visit the cancel a promotion with id 1 "{url}"')
+def step_impl(context, url):
+    context.resp = context.app.put(url)
+    assert context.resp.status_code == 200 
 
+@when(u'I visit the cancel a promotion with id 4 "{url}"')
+def step_impl(context, url):
+    context.resp = context.app.put(url)
+    assert context.resp.status_code == 404     
