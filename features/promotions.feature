@@ -68,24 +68,3 @@ Scenario: Cancel a promotion given the id
     Then I should see ""Success": "Cancelled the Promotion with id 1""
     When I visit the cancel a not present promotion with id "/promotions/4/cancel"
     Then I should see ""error": "Promotion 4 was not found""
-
-
-Scenario: List inactive promotions 
-    Given the following promotions
-        |  name  |  kind  | description  |
-        |  Buy one, get one free  |  sales-promotion1  |  Buy an item having a cost of atleast 20$ to get one free.Cost of the higher price product will be taken into account |
-        |  Buy one, get two free  |  sales-promotion3  |  Buy an item having a cost of atleast 40$ to get two free.Cost of the higher price product will be taken into account |
-        |  Buy one, get two free  |  sales-promotion3  |  Buy an item having a cost of atleast 60$ to get two free.Cost of the higher price product will be taken into account |
-
-    When I visit the cancel a promotion with id "/promotions/1/cancel"
-    Then I should see ""Success": "Cancelled the Promotion with id 1""
-    When I visit the cancel a promotion with id "/promotions/2/cancel"
-    Then I should see ""Success": "Cancelled the Promotion with id 2""
-    When I visit the inactive promotions "/promotions/status/inactive"
-    Then I should see "atleast 20$"
-    Then I should see "atleast 40$"
-    Then I should not see "atleast 60$"
-
-
-
-
