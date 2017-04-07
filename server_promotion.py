@@ -205,18 +205,6 @@ def data_load(payload):
 def data_reset():
     redis.flushall()
 
-@app.before_first_request
-def setup_logging():
-    if not app.debug:
-        # In production mode, add log handler to sys.stderr.
-        handler = logging.StreamHandler()
-        handler.setLevel(app.config['LOGGING_LEVEL'])
-        # formatter = logging.Formatter(app.config['LOGGING_FORMAT'])
-        #'%Y-%m-%d %H:%M:%S'
-        formatter = logging.Formatter('[%(asctime)s] - %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]')
-        handler.setFormatter(formatter)
-        app.logger.addHandler(handler)
-
 ######################################################################
 # Connect to Redis and catch connection exceptions
 ######################################################################
@@ -258,12 +246,12 @@ def inititalize_redis():
         app.logger.error('*** FATAL ERROR: Could not connect to the Redis Service')
         exit(1) 
 
+debug = (os.getenv('DEBUG', 'False') == 'True')
+inititalize_redis()
+port = os.getenv('PORT', '5000')
 ######################################################################
 #   M A I N
 ######################################################################
 if __name__ == "__main__":
     # Pull options from environment
-    debug = (os.getenv('DEBUG', 'False') == 'True')
-    inititalize_redis()
-    port = os.getenv('PORT', '5000')
     app.run(host='0.0.0.0', port=int(port), debug=debug)
