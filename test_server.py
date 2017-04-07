@@ -116,6 +116,41 @@ class TestPromotionServer(unittest.TestCase):
         new_count = self.get_promotion_count()
         self.assertEqual( new_count, promotion_count - 1)
 
+        def test_create_promotion(self):
+        # save the current number of promotions for later comparrison
+        promotion_count = self.get_promotion_count()
+        # add a new pet
+        new_promotion = {"name": "Buy one, get two free","description": "Buy an item having a cost of atleast 60$ to get three free.Cost of the higher price product will be taken into account", "kind": "sales-promotion3"}
+        data = json.dumps(new_promotion)
+        resp = self.app.post('/promotions', data=data, content_type='application/json')
+        self.assertEqual( resp.status_code, status.HTTP_201_CREATED )
+        # Make sure location header is set
+        location = resp.headers.get('Location', None)
+        self.assertTrue( location != None)
+        # Check the data is correct
+        new_json = json.loads(resp.data)
+        self.assertEqual (new_json['name'], 'Buy one, get two free')
+        # check that count has gone up and includes sammy
+        resp = self.app.get('/promotions')
+        # print 'resp_data(2): ' + resp.data
+        data = json.loads(resp.data)
+        self.assertEqual(resp.status_code, status.HTTP_200_OK )
+        self.assertEqual(len(data), promotion_count + 1 )
+        self.assertIn(new_json,data)        
+    
+    def test_create_promotion_with_no_name(self):
+        new_promotion = {"description": "Buy an item having a cost of atleast 80$ to get four free.Cost of the higher price product will be taken into account", "kind": "sales-promotion4"}
+        data = json.dumps(new_promotion)
+        resp = self.app.post('/promotions', data=data, content_type='application/json')
+        self.assertEqual( resp.status_code, status.HTTP_400_BAD_REQUEST )
+
+    def test_create_promotion_with_no_kind(self):
+        new_promotion = {"name": "Buy one, get two free","description": "Buy an item having a cost of atleast 60$ to get three free.Cost of the higher price product will be taken into account"}
+        data = json.dumps(new_promotion)
+        resp = self.app.post('/promotions', data=data)
+        self.assertEqual( resp.status_code, status.HTTP_400_BAD_REQUEST )
+
+
     def test_validate(self):
         lack_arguments_input = {"name": "Buy one, get two free", "kind": "sales-promotion1"}
         self.assertFalse(Promotion.validate(lack_arguments_input))
