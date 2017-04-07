@@ -116,7 +116,7 @@ class TestPromotionServer(unittest.TestCase):
         new_count = self.get_promotion_count()
         self.assertEqual( new_count, promotion_count - 1)
 
-        def test_create_promotion(self):
+    def test_create_promotion(self):
         # save the current number of promotions for later comparrison
         promotion_count = self.get_promotion_count()
         # add a new pet
