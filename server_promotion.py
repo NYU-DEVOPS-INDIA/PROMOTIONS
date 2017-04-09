@@ -181,7 +181,7 @@ def list_all_inactive_promotions():
         result = [Promotion.serialize(promotion) for promotion in results]
         rc = HTTP_200_OK
     else:
-        result = { 'error' : 'No active promotions found'  }
+        result = { 'error' : 'No inactive promotions found'  }
         rc = HTTP_404_NOT_FOUND
     return make_response(jsonify(result), rc)
 

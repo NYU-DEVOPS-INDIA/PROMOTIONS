@@ -166,6 +166,18 @@ class TestPromotionServer(unittest.TestCase):
         resp = self.app.post('/promotions', data=data)
         self.assertEqual( resp.status_code, status.HTTP_400_BAD_REQUEST )
 
+    def test_get_inactive_promotion_list(self):
+        server.data_load({"name": "Buy one, get four free","description": "Buy an item having a cost of atleast 60$ to get three free.Cost of the higher price product will be taken into account", "kind": "sales-promotion4","status": "Inactive"})
+        resp = self.app.get('/promotions/status/inactive')
+        self.assertEqual( resp.status_code, status.HTTP_200_OK )
+        data = json.loads(resp.data)
+        self.assertTrue( len(data) == 1 )
+        self.assertEqual(data[0]['name'], 'Buy one, get four free')
+        resp = self.app.delete('/promotions/4', content_type='application/json')
+
+    def test_get_inactive_promotion_list_empty(self):
+        resp = self.app.get('/promotions/status/inactive')
+        self.assertEqual( resp.status_code, status.HTTP_404_NOT_FOUND )
 
     def test_validate(self):
         lack_arguments_input = {"name": "Buy one, get two free", "kind": "sales-promotion1"}
