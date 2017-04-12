@@ -91,7 +91,7 @@ Scenario: Retrieve promotion(present) with kind
         |  Buy one, get two free  |  sales-promotion3  |  Buy an item having a cost of atleast 40$ to get two free.Cost of the higher price product will be taken into account |
         |  Buy one, get two free  |  sales-promotion3  |  Buy an item having a cost of atleast 60$ to get two free.Cost of the higher price product will be taken into account |
 
-    When I visit the promotion "/promotions/kind/sales-promotion1" with kind "sales-promotion1 "
+    When I visit the promotion kind "/promotions/kind/sales-promotion1"
     Then I should see "atleast 20$"
     Then I should not see "atleast 40$"
     Then I should not see "atleast 60$"
@@ -104,7 +104,7 @@ Scenario: Retrieve promotion(not present) with kind
         |  Buy one, get two free  |  sales-promotion3  |  Buy an item having a cost of atleast 40$ to get two free.Cost of the higher price product will be taken into account |
         |  Buy one, get two free  |  sales-promotion3  |  Buy an item having a cost of atleast 60$ to get two free.Cost of the higher price product will be taken into account |
 
-    When I visit the not present promotion "/promotions/kind/sales-promotion8" with kind "sales-promotion8"
+    When I visit the not present promotion kind "/promotions/kind/sales-promotion8"
     Then I should see "Promotion with kind: sales-promotion8 was not found"
     Then I should not see "atleast 20$"
     Then I should not see "atleast 40$"
