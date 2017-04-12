@@ -60,6 +60,27 @@ def step_impl(context, url):
     context.resp = context.app.put(url)
     assert context.resp.status_code == 404 
 
+@when(u'I change "{key}" to "{value}"')
+def step_impl(context, key, value):
+    data = json.loads(context.resp.data)
+    new_data = {}
+    new_data['name'] = data['name']
+    new_data['kind'] = data['kind']
+    new_data['description'] = data['description']
+    new_data[key] = value
+    context.resp.data = json.dumps(new_data)
+
+@when(u'I update "{url}" with id "{id}"')
+def step_impl(context, url, id):
+    target_url = url + '/' + id
+    context.resp = context.app.put(target_url, data=context.resp.data, content_type='application/json')
+    assert context.resp.status_code == 200
+
+@when(u'I update "{url}" with id "{id}" and invalid data')
+def step_impl(context, url, id):
+    target_url = url + '/' + id
+    context.resp = context.app.put(target_url, data=context.resp.data, content_type='application/json')
+    assert context.resp.status_code == 400
 
 @when(u'I visit the promotion kind "{url}"')
 def step_impl(context, url):
