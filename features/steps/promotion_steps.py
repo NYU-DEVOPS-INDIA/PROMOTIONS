@@ -15,6 +15,10 @@ def step_impl(context, message):
 def step_impl(context, message):
     assert message not in context.resp.data
 
+@then(u'I should see no content in the response')
+def step_impl(context):
+    assert context.resp.data is ""
+
 @given(u'the following promotions')
 def step_impl(context):
     server.data_reset()
@@ -70,4 +74,10 @@ def step_impl(context, url):
 def step_impl(context, url):
     context.resp = context.app.get(url)
     assert context.resp.status_code == 404
+
+@when(u'I visit the delete the promotion "{url}" with id "{id}"')
+def step_impl(context, url, id):
+    target_url = url + '/' + id
+    context.resp = context.app.delete(target_url)
+    assert context.resp.status_code == 204
     
