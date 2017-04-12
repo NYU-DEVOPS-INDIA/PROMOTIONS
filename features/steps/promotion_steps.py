@@ -58,4 +58,18 @@ def step_impl(context, url):
 @when(u'I visit the cancel a not present promotion with id "{url}"')
 def step_impl(context, url):
     context.resp = context.app.put(url)
-    assert context.resp.status_code == 404     
+    assert context.resp.status_code == 404 
+
+
+@when(u'I visit the promotion "{url}" with kind "{kind}"')
+def step_impl(context, url, kind):
+    target_url = url + '/' + kind
+    context.resp = context.app.get(target_url)
+    assert context.resp.status_code == 200
+
+@when(u'I visit the not present promotion "{url}" with kind "{kind}"')
+def step_impl(context, url, kind):
+    target_url = url + '/' + kind
+    context.resp = context.app.get(target_url)
+    assert context.resp.status_code == 404
+    
