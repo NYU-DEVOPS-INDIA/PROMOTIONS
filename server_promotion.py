@@ -17,6 +17,7 @@ import logging
 from threading import Lock
 from flask import Flask, Response, jsonify, request, make_response, json, url_for, render_template
 from flask_api import status    # HTTP Status Codes
+from flasgger import Swagger
 from redis import Redis
 from redis.exceptions import ConnectionError
 from promotion import Promotion
@@ -24,6 +25,23 @@ from promotion import Promotion
 # Create Flask application
 app = Flask(__name__)
 app.config['LOGGING_LEVEL'] = logging.INFO
+
+# Configure Swagger before initilaizing it
+app.config['SWAGGER'] = {
+    "swagger_version": "2.0",
+    "specs": [
+        {
+            "version": "1.0.0",
+            "title": "DevOps Swagger Promotion App",
+            "description": "This is a Promotion server.",
+            "endpoint": 'v1_spec',
+            "route": '/v1/spec'
+        }
+    ]
+}
+
+# Initialize Swagger after configuring it
+Swagger(app)
 
 # Status Codes
 HTTP_200_OK = 200
@@ -130,6 +148,57 @@ def cancel_promotions(id):
 ######################################################################
 @app.route('/promotions', methods=['POST'])
 def create_promotions():
+    """
+    Creates a Promotion
+    This endpoint will create a Promotion scheme based the data in the body that is posted
+    ---
+    tags:
+      - Promotions
+    consumes:
+      - application/json
+    produces:
+      - application/json
+    parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          id: data
+          required:
+            - name
+            - kind
+            - description
+          properties:
+            name:
+              type: string
+              description: name for the Promotion scheme
+            kind:
+              type: string
+              description: the kind of Promotion scheme (sales-promotion1, sale-senior-promotion, black-friday-promotion etc.)
+            description:
+              type: string
+              description: the complete detail of the Promotion scheme and the criteria for the promotion.    
+    responses:
+      201:
+        description: Promotion created
+        schema:
+          id: Promotion
+          properties:
+            id:
+              type: integer
+              description: unique id assigned internally by service
+            name:
+              type: string
+              description: name for the Promotion scheme
+            kind:
+              type: string
+              description: the kind of Promotion scheme (sales-promotion1, sale-senior-promotion, black-friday-promotion etc.)
+            description:
+              type: string
+              description: the complete detail of the Promotion scheme and the criteria for the promotion.
+      400:
+        description: Bad Request (the posted data was not valid)
+    """    
     id = 0
     payload = request.get_json()
     print payload
