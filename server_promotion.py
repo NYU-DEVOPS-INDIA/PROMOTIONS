@@ -65,10 +65,49 @@ def index():
 ######################################################################
 @app.route('/promotions', methods=['GET'])
 def list_promotions():
+    """
+    Retrieve a list of all Promotions
+    This endpoint will return all Promotions unless a query parameter on id or kind is specificed
+    ---
+    tags:
+      - Promotions
+    description: The Promotions endpoint allows you to query Promotion schemes
+    parameters:
+      - name: kind
+        in: query
+        description: the kind of Promotion scheme you are looking for
+        required: false
+        type: string
+    responses:
+      200:
+        description: An array of Promotion schemes
+        schema:
+          type: array
+          items:
+            schema:
+              id: Promotion
+              properties:
+                id:
+                  type: integer
+                  description: unique id assigned internally by service
+                name:
+                  type: string
+                  description: the promotion scheme's name
+                kind:
+                  type: string
+                  description: the kind of Promotion scheme (sales-promotion1, sale-senior-promotion, black-friday-promotion etc.)
+                description:
+                  type: string
+                  description: the complete detail of the Promotion scheme and the criteria for the promotion.
+                status:
+                  type: string
+                  description: the status of promotion scheme whether it is currently "Active" or "Inactive" 
+      400:
+        description: No promotion schemes found.             
+    """
     results = []
     
     kind = request.args.get('kind')
-    id = request.args.get('id')
     if kind:
         result = Promotion.find_by_kind(redis, kind)
     else:
