@@ -101,6 +101,41 @@ def list_all_active_promotions():
 ######################################################################
 @app.route('/promotions/<int:id>', methods=['GET'])
 def get_promotions(id):
+    """
+    Retrieve a single Promotion
+    This endpoint will return a Promotion based on it's id
+    ---
+    tags:
+      - Promotions
+    produces:
+      - application/json
+    parameters:
+      - name: id
+        in: path
+        description: ID of promotion to retrieve
+        type: integer
+        required: true
+    responses:
+      200:
+        description: Promotion returned
+        schema:
+          id: Promotion
+          properties:
+            id:
+              type: integer
+              description: unique id assigned internally by service
+            name:
+              type: string
+              description: name for the Promotion scheme
+            kind:
+              type: string
+              description: the kind of Promotion scheme (sales-promotion1, sale-senior-promotion, black-friday-promotion etc.)
+            description:
+              type: string
+              description: the complete detail of the Promotion scheme and the criteria for the promotion.
+      404:
+        description: Promotion not found
+    """
     promotion = Promotion.find(redis, id)
     if promotion:
         message = promotion.serialize()
