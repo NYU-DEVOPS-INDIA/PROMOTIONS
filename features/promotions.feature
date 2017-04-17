@@ -8,6 +8,18 @@ Scenario: The server is running
     Then I should see "Promotions REST API"
     Then I should not see "404 Not Found"
 
+Scenario: Create a promotion
+    Given I create a promotion called "Buy 1 get 1 free" And I describe it as "Buy an item and get another of the same item for free" And I set the kind to "discount"
+    When I visit the "/promotions"
+    Then I should see a promotion called "Buy 1 get 1 free" that is a "discount" and has status "Active"
+
+Scenario: Create a promotion with no name
+    Given I create a promotion with no name And I describe it as "Buy an item and get another of the same item for free" And I set the kind to "discount"
+    When I visit the "/promotions" with no promotions
+    Then I should see ""error": "No promotions found""
+    Then I should not see a promotion that is a "discount" and has status "Active"
+
+
 Scenario: List all promotions
     Given the following promotions
         |  name  |  kind  | description  |
