@@ -262,6 +262,61 @@ def create_promotions():
 # Can only update name/description/kind
 @app.route('/promotions/<int:id>', methods=['PUT'])
 def update_promotions(id):
+    """
+    Update a Promotion
+    This endpoint will update a Promotion based the body that is posted
+    ---
+    tags:
+      - Promotions
+    consumes:
+      - application/json
+    produces:
+      - application/json
+    parameters:
+      - name: id
+        in: path
+        description: ID of promotion to retrieve
+        type: integer
+        required: true
+      - in: body
+        name: body
+        schema:
+          id: data
+          required:
+            - name
+            - kind
+            - description
+          properties:
+            name:
+              type: string
+              description: name for the Promotion scheme
+            kind:
+              type: string
+              description: the kind of Promotion scheme (sales-promotion1, sale-senior-promotion, black-friday-promotion etc.)
+            description:
+              type: string
+              description: the complete detail of the Promotion scheme and the criteria for the promotion. 
+    responses:
+      200:
+        description: Promotion Updated
+        schema:
+          id: Promotion
+          properties:
+            id:
+              type: integer
+              description: unique id assigned internallt by service
+            name:
+              type: string
+              description: name for the Promotion scheme
+            kind:
+              type: string
+              description: the kind of Promotion scheme (sales-promotion1, sale-senior-promotion, black-friday-promotion etc.)
+            description:
+              type: string
+              description: the complete detail of the Promotion scheme and the criteria for the promotion.
+      400:
+        description: Bad Request (the posted data was not valid)
+    """
     promotion = Promotion.find(redis, id)
     if promotion:
         payload = request.get_json()
