@@ -172,6 +172,9 @@ def get_promotions(id):
             description:
               type: string
               description: the complete detail of the Promotion scheme and the criteria for the promotion.
+            status:
+              type: string
+              description: the status of promotion scheme whether it is currently "Active" or "Inactive"   
       404:
         description: Promotion not found
     """
@@ -270,6 +273,10 @@ def create_promotions():
             description:
               type: string
               description: the complete detail of the Promotion scheme and the criteria for the promotion.
+            status:
+              type: string
+              description: the status of promotion scheme with the value "Active"    
+
       400:
         description: Bad Request (the posted data was not valid)
     """    
@@ -339,7 +346,7 @@ def update_promotions(id):
           properties:
             id:
               type: integer
-              description: unique id assigned internallt by service
+              description: unique id assigned internally by service
             name:
               type: string
               description: name for the Promotion scheme
@@ -349,6 +356,9 @@ def update_promotions(id):
             description:
               type: string
               description: the complete detail of the Promotion scheme and the criteria for the promotion.
+            status:
+              type: string
+              description: the status of promotion scheme whether it is currently "Active" or "Inactive"   
       400:
         description: Bad Request (the posted data was not valid)
     """
