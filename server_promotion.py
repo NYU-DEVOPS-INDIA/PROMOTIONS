@@ -398,6 +398,22 @@ def list_all_inactive_promotions():
 ######################################################################
 @app.route('/promotions/<int:id>', methods=['DELETE'])
 def delete_promotions(id):
+    """
+    Delete a single Promotion
+    This endpoint will return an empty response and delete the promotion in database
+    ---
+    tags:
+      - Promotions
+    parameters:
+      - name: id
+        in: path
+        description: ID of promotion to delete
+        type: integer
+        required: true
+    responses:
+      204:
+        description: no content
+    """
     promotion = Promotion.find(redis, id)
     if promotion:
        promotion.delete(redis)
