@@ -208,6 +208,24 @@ def get_promotions_kind(kind):
 ######################################################################
 @app.route('/promotions/<int:id>/cancel', methods=['PUT'])
 def cancel_promotions(id):
+    """
+    Cancel a single Promotion
+    This endpoint will set the status of promotion as Inactive on success or return an error message if promotion is not found.
+    ---
+    tags:
+      - Promotions
+    parameters:
+      - name: id
+        in: path
+        description: ID of promotion to cancel
+        type: integer
+        required: true
+    responses:
+      200:
+        description: success message, 'Cancelled the promotion with given id'
+      404:
+        description: error message, 'Promotion with given id was not found'
+    """
     promotion = Promotion.find(redis, id)
     if promotion:
         promotion = Promotion.cancel_by_id(redis,id)
