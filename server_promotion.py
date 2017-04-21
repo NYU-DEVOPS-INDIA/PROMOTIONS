@@ -193,7 +193,7 @@ def get_promotions(id):
 ######################################################################
 @app.route('/promotions/kind/<kind>', methods=['GET'])
 def get_promotions_kind(kind):
- """
+    """
     Retrieve all promotions for one kind
     This endpoint will return a Promotion based on it's kind
     ---
