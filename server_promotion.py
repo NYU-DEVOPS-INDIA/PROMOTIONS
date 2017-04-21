@@ -193,6 +193,45 @@ def get_promotions(id):
 ######################################################################
 @app.route('/promotions/kind/<kind>', methods=['GET'])
 def get_promotions_kind(kind):
+ """
+    Retrieve all promotions for one kind
+    This endpoint will return a Promotion based on it's kind
+    ---
+    tags:
+      - Promotions
+    produces:
+      - application/json
+    parameters:
+      - name: kind
+        in: path
+        description: the kind of Promotion scheme you are looking for
+        type: string
+        required: true
+    responses:
+      200:
+        description: Promotion returned
+        schema:
+          id: Promotion
+          properties:
+            id:
+              type: integer
+              description: unique id assigned internally by service
+            name:
+              type: string
+              description: name for the Promotion scheme
+            kind:
+              type: string
+              description: the kind of Promotion scheme (sales-promotion1, sale-senior-promotion, black-friday-promotion etc.)
+            description:
+              type: string
+              description: the complete detail of the Promotion scheme and the criteria for the promotion.
+            status:
+              type: string
+              description: the status of promotion scheme whether it is currently "Active" or "Inactive"   
+      404:
+        description: Promotion not found
+    """
+
     results = Promotion.find_by_kind(redis, kind.upper())
     if len(results) > 0:
         result = [Promotion.serialize(promotion) for promotion in results]
