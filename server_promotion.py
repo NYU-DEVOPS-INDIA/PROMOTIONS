@@ -102,7 +102,7 @@ def list_promotions():
                 status:
                   type: string
                   description: the status of promotion scheme whether it is currently "Active" or "Inactive" 
-      400:
+      404:
         description: No promotion schemes found.             
     """
     results = []
@@ -125,6 +125,42 @@ def list_promotions():
 ######################################################################
 @app.route('/promotions/status/active', methods=['GET'])
 def list_all_active_promotions():
+    """
+    Retrieve a list of all acitve Promotions
+    This endpoint will return all active Promotions unless no active Promotions can be found
+    ---
+    tags:
+      - Promotions
+    description: The Promotions endpoint allows you to query Promotion schemes
+    produces:
+      - application/json
+    responses:
+      200:
+        description: An array of Promotion schemes
+        schema:
+          type: array
+          items:
+            schema:
+              id: Promotion
+              properties:
+                id:
+                  type: integer
+                  description: unique id assigned internally by service
+                name:
+                  type: string
+                  description: the promotion scheme's name
+                kind:
+                  type: string
+                  description: the kind of Promotion scheme (sales-promotion1, sale-senior-promotion, black-friday-promotion etc.)
+                description:
+                  type: string
+                  description: the complete detail of the Promotion scheme and the criteria for the promotion.
+                status:
+                  type: string
+                  description: the status of promotion scheme. Will always be "Active"
+      404:
+        description: No promotion schemes found.
+    """
     results = Promotion.find_by_status(redis, 'ACTIVE')
     if len(results) > 0:
         result = [Promotion.serialize(promotion) for promotion in results]
@@ -133,6 +169,20 @@ def list_all_active_promotions():
         result = { 'error' : 'No active promotions found'  }
         rc = HTTP_404_NOT_FOUND
 
+    return make_response(jsonify(result), rc)
+
+######################################################################
+# LIST ALL INACTIVE PROMOTIONS
+######################################################################
+@app.route('/promotions/status/inactive', methods=['GET'])
+def list_all_inactive_promotions():
+    results = Promotion.find_by_status(redis, 'INACTIVE')
+    if len(results) > 0:
+        result = [Promotion.serialize(promotion) for promotion in results]
+        rc = HTTP_200_OK
+    else:
+        result = { 'error' : 'No inactive promotions found'  }
+        rc = HTTP_404_NOT_FOUND
     return make_response(jsonify(result), rc)
 
 ######################################################################
@@ -396,20 +446,6 @@ def update_promotions(id):
         message = { 'error' : 'Promotion %s was not found' % id }
         rc = HTTP_404_NOT_FOUND
     return make_response(jsonify(message), rc)
-
-######################################################################
-# LIST ALL INACTIVE PROMOTIONS
-######################################################################
-@app.route('/promotions/status/inactive', methods=['GET'])
-def list_all_inactive_promotions():
-    results = Promotion.find_by_status(redis, 'INACTIVE')
-    if len(results) > 0:
-        result = [Promotion.serialize(promotion) for promotion in results]
-        rc = HTTP_200_OK
-    else:
-        result = { 'error' : 'No inactive promotions found'  }
-        rc = HTTP_404_NOT_FOUND
-    return make_response(jsonify(result), rc)
 
 ######################################################################
 # DELETE A PROMOTION

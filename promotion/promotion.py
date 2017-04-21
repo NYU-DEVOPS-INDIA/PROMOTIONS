@@ -92,7 +92,7 @@ class Promotion(object):
     def find_by_status(redis, status):
         results = []
         for key in redis.keys():
-            if key != 'index':  # filer out our id index
+            if key != 'index':  # filter out the index
                 data = redis.hgetall(key)
                 if data['status'].upper() == status:
                     results.append(Promotion.from_dict(data))
