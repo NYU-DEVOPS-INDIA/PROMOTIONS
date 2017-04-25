@@ -1,6 +1,9 @@
 [run]
 omit =
     promotion/*
+    promotion/promotion.py
+    promotion/__init__.py
     features/*
+    features/environment.py
     test_server.py
     
