@@ -1,0 +1,20 @@
+[run]
+source = 
+    server_promotion
+
+include = 
+    server_promotion.py
+
+omit =
+    promotion/*
+    promotion/promotion.py
+    promotion/__init__.py
+    features/*
+    features/environment.py
+    test_server.py
+
+[report]
+include = 
+    server_promotion.py
+
+   
