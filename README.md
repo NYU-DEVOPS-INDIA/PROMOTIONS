@@ -1,4 +1,7 @@
-Promotions API
+#Promotions API
+
+[![Build Status](https://travis-ci.org/NYU-DEVOPS-INDIA/PROMOTIONS.svg?branch=master)](https://travis-ci.org/NYU-DEVOPS-INDIA/PROMOTIONS)
+[![Codecov](https://img.shields.io/codecov/c/github/NYU-DEVOPS-INDIA/PROMOTIONS-ci.svg)]()
 
 Team India
 

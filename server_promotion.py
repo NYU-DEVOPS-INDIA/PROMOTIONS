@@ -176,7 +176,7 @@ def list_all_active_promotions():
 ######################################################################
 @app.route('/promotions/status/inactive', methods=['GET'])
 def list_all_inactive_promotions():
-  """
+    """
     Retrieve a list of all  inactive Promotions
     This endpoint will return all inactive Promotions
     ---
