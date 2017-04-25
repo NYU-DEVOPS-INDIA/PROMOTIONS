@@ -13,7 +13,8 @@ before_script:
   - redis-cli ping
 
 script:
-  - nosetests --with-coverage --cover-erase
+  - nosetests
+  - coverage run test_server.py
   - behave
 
 after_success:
