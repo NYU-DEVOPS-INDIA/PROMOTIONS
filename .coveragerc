@@ -1,0 +1,6 @@
+[run]
+omit =
+    promotion/*
+    features/*
+    test_server.py
+    
