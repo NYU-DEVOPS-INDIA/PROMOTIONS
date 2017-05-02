@@ -19,4 +19,4 @@ $ python server_promotion.py
 The API can be accessed from the URL : http://192.168.33.10:5000
 
 
-Bluemix URL : http://nyu-promotions-service.mybluemix.net
+Bluemix Docker URL : http://nyu-devops-promotion-docker.mybluemix.net/
