@@ -67,7 +67,7 @@ def index():
 def list_promotions():
     """
     Retrieve a list of all Promotions
-    This endpoint will return all Promotions unless a query parameter on id or kind is specificed
+    This endpoint will return all Promotions unless a query parameter on kind is specificed
     ---
     tags:
       - Promotions
