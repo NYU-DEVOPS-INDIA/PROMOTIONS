@@ -20,3 +20,4 @@ The API can be accessed from the URL : http://192.168.33.10:5000
 
 
 Bluemix Docker URL : http://nyu-devops-promotion-docker.mybluemix.net/
+Swagger URL: https://nyu-devops-promotion-docker.mybluemix.net/apidocs/index.html?url=/v1/spec#/
