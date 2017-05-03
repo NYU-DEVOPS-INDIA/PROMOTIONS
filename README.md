@@ -16,7 +16,7 @@ $ cd /vagrant
 $ python server_promotion.py
 ```
 
-When running locally, the API can be accessed from the URL : http://192.168.33.10:5000
+When running locally, the API can be accessed from the following URL : http://192.168.33.10:5000
 
 Bluemix Docker URL : http://nyu-devops-promotion-docker.mybluemix.net/
 
