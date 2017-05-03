@@ -10,7 +10,7 @@ redis:
 app:
   build: .
   restart: always
-  hostname: nyudevops-promotions-service
+  hostname: nyu-devops-promotion-docker
   ports:
     - "5000:5000"
   links:
