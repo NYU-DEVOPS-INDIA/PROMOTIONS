@@ -5,7 +5,7 @@
 
 Team India
 
-To run the API locally : 
+To run this API locally : 
 
 ```{r, engine='bash', count_lines}
 $ git clone https://github.com/NYU-DEVOPS-INDIA/PROMOTIONS.git
@@ -17,7 +17,6 @@ $ python server_promotion.py
 ```
 
 The API can be accessed from the URL : http://192.168.33.10:5000
-
 
 Bluemix Docker URL : http://nyu-devops-promotion-docker.mybluemix.net/
 
